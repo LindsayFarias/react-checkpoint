@@ -20,7 +20,7 @@ const Compose = (props) => {
             <Form.Group as={Row} className="mb-3">
                 <Form.Label column sm="2">Subject:</Form.Label>
                 <Col sm="10">
-                    <Form.Control type="email" placeholder="name@example.com" />
+                    <Form.Control type="email"/>
                 </Col>
             </Form.Group>
             <Form.Group className="mb-3">

@@ -2,6 +2,7 @@ import React from "react";
 import NavBar from "./Navbar";
 import Emails from "./Emails";
 import Compose from "./Compose";
+import EmailView from "./EmailView";
 import './App.css';
 
 class App extends React.Component {
@@ -9,12 +10,15 @@ class App extends React.Component {
     super();
 
     this.composeEmail = this.composeEmail.bind(this);
+    this.search = this.search.bind(this);
 
     this.state = {
         emails: [],
         composeEmail: false,
-        searchQuery: {},
+        searchQuery: [],
+        searching: false,
         searchBoxValue: '',
+        retrieveId: undefined,
     };
   }
   async componentDidMount(){
@@ -24,16 +28,16 @@ class App extends React.Component {
   async getEmails(){
     let content = await fetch("http://localhost:3001/emails");
     let data = await content.json();
-    
+    console.log(data)
     let emailArray = [];
-    let newEmail = {}
     for (let i = 0; i < data.length; i++){
+      let newEmail = {}
       newEmail.sender = data[i].sender;
       newEmail.subject = data[i].subject;
       newEmail.message = data[i].message;
       newEmail.date = data[i].date;
       newEmail.id = data[i].id;
-      emailArray.push(newEmail)
+      emailArray.push(newEmail);
     }
     this.setState({emails: emailArray})
   }
@@ -42,9 +46,12 @@ class App extends React.Component {
     this.setState({composeEmail: boolean})
   }
 
-  async search(searchValue){
-    let result = await fetch("http://localhost:3001/search?query=" + searchValue)
-    let data = await result.json()
+  async search(){
+    let searchValue = this.state.searchBoxValue;
+    let url = "http://localhost:3001/search?query=" + searchValue;
+    let result = await fetch(url);
+    let data = await result.json();
+
     let query= {};
     query.sender = data.sender;
     query.subject = data.subject;
@@ -52,13 +59,22 @@ class App extends React.Component {
     query.date = data.date;
     query.id = data.id;
 
-    this.setState({searchQuery: query})
+    console.log("Searching", searchValue)
+    console.log("Data Retrieved", query)
+    console.log("Using this url",url)
+
+    let newQuery = [];
+    newQuery.push(query)
+
+    this.setState({searchQuery: newQuery})
+    this.setState({searching: true})
   }
 
   render(){
     let result;
     if(this.state.composeEmail) {result = <Compose composeFunc={this.composeEmail}/>}
-    if(!this.state.composeEmail) {result = <Emails props={this.state.emails}/>}
+    if(this.state.searching) {result = <EmailView queryObj={this.state.searchQuery[0]} composeFunc={this.composeEmail}/>}
+    if(!this.state.composeEmail) {result = <Emails emails={this.state.emails}/>}
   return (
     <div className="App">
       <header>

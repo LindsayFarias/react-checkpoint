@@ -1,8 +1,9 @@
 import React from "react";
 import { Card, Container, Button } from "react-bootstrap";
 
-const Emails = ({props}) => {
-    let mappedEmails = props.map((email) => {
+const Emails = ({emails}) => {
+  console.log(emails)
+    let mappedEmails = emails.map((email) => {
     return(
     <Card>
       <Card.Header>Sender: {email.sender}</Card.Header>
