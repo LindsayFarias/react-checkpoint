@@ -1,15 +1,18 @@
 import React from "react"
-import {Button, Card, Container} from "react-bootstrap"
+import {Card, Button} from "react-bootstrap"
 
-const EmailView = (props) => {
+const EmailView = ({email, composeFunc}) => {
     return(
-        <Card style={{ width: '18rem' }}>
+        <Card>
+            <Card.Header>From: {email.sender}</Card.Header>
             <Card.Body>
-                <Card.Title>{queryObj.subject}</Card.Title>
-                <Card.Subtitle className="mb-2 text-muted">From: {queryObj.sender}</Card.Subtitle>
-                <Card.Text>{queryObj.message}</Card.Text>
-                <Button className="mx-1" onClick={() => {props.composeFunc(true)}} variant="light">Compose</Button>
+                <Card.Title>{email.subject}</Card.Title>
+                <Card.Text>
+                    {email.message}
+                </Card.Text>
+                <Button onClick={()=>composeFunc(true)} variant="outline-dark">Reply</Button>
             </Card.Body>
+            <Card.Footer className="text-muted">{email.date}</Card.Footer>
         </Card>
     );
 }

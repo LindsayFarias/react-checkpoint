@@ -2,6 +2,7 @@ import React from "react";
 import NavBar from "./Navbar";
 import Emails from "./Emails";
 import Compose from "./Compose";
+import EmailQuery from "./EmailQuery";
 import EmailView from "./EmailView";
 import './App.css';
 
@@ -11,70 +12,69 @@ class App extends React.Component {
 
     this.composeEmail = this.composeEmail.bind(this);
     this.search = this.search.bind(this);
+    this.selectEmail = this.selectEmail.bind(this);
 
     this.state = {
         emails: [],
         composeEmail: false,
         searchQuery: [],
-        searching: false,
-        searchBoxValue: '',
+        searching: undefined,
         retrieveId: undefined,
+        selectedEmail: {},
+        selected: false,
     };
   }
+
   async componentDidMount(){
     this.getEmails()
+  }
+
+  async grabJson(value){
+
+    let result;
+
+    if(typeof value === "number") {
+      result = await fetch("http://localhost:3001/emails/" + value);
+    } else {
+      let url = "http://localhost:3001/search?query=" + value;
+      result = await fetch(url);
+    }
+
+    let json = await result.json()
+    console.log("JSON", json)
+    return json;
   }
 
   async getEmails(){
     let content = await fetch("http://localhost:3001/emails");
     let data = await content.json();
-    console.log(data)
-    let emailArray = [];
-    for (let i = 0; i < data.length; i++){
-      let newEmail = {}
-      newEmail.sender = data[i].sender;
-      newEmail.subject = data[i].subject;
-      newEmail.message = data[i].message;
-      newEmail.date = data[i].date;
-      newEmail.id = data[i].id;
-      emailArray.push(newEmail);
-    }
-    this.setState({emails: emailArray})
+    this.setState({emails: data})
   }
 
   composeEmail(boolean){
     this.setState({composeEmail: boolean})
   }
 
-  async search(){
-    let searchValue = this.state.searchBoxValue;
-    let url = "http://localhost:3001/search?query=" + searchValue;
-    let result = await fetch(url);
-    let data = await result.json();
-
-    let query= {};
-    query.sender = data.sender;
-    query.subject = data.subject;
-    query.message = data.message;
-    query.date = data.date;
-    query.id = data.id;
-
-    console.log("Searching", searchValue)
-    console.log("Data Retrieved", query)
-    console.log("Using this url",url)
-
-    let newQuery = [];
-    newQuery.push(query)
-
-    this.setState({searchQuery: newQuery})
+  async search(text,boolean){
+    let data = await this.grabJson(text)
+    this.setState({searchQuery: data});
     this.setState({searching: true})
+  }
+
+  async selectEmail(id){
+    let data = await this.grabJson(id)
+    this.setState({selectedEmail: data})
+    this.setState({selected: true})
   }
 
   render(){
     let result;
     if(this.state.composeEmail) {result = <Compose composeFunc={this.composeEmail}/>}
-    if(this.state.searching) {result = <EmailView queryObj={this.state.searchQuery[0]} composeFunc={this.composeEmail}/>}
-    if(!this.state.composeEmail) {result = <Emails emails={this.state.emails}/>}
+    else if(this.state.searching) {result = <EmailQuery queryObj={this.state.searchQuery} selectorFunc={this.selectEmail}/>}
+    else if(this.state.selected) {result = <EmailView email={this.state.selectedEmail} composeFunc={this.composeEmail}/>}
+    else if(!this.state.composeEmail) {result = <Emails emails={this.state.emails} selectorFunc={this.selectEmail}/>}
+    console.log(result)
+
   return (
     <div className="App">
       <header>
@@ -86,6 +86,7 @@ class App extends React.Component {
     </div>
   );
   }
+
 }
 
 export default App;

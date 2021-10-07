@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import {
   Navbar,
   Nav,
@@ -6,10 +6,10 @@ import {
   FormControl,
   Button,
   Container,
-  NavDropdown,
 } from "react-bootstrap";
 
 const NavBar = (props) => {
+  const [text, setText] = useState("")
   return (
     <Navbar bg="light" expand="lg">
       <Container fluid>
@@ -19,7 +19,7 @@ const NavBar = (props) => {
           <Nav
             className="mr-auto my-2 my-lg-0"style={{ maxHeight: "100px" }}navbarScroll>
 
-            <Button className="mx-1" onClick={() => {props.composeFunc(false)}} variant="light">Inbox</Button>
+            <Button className="mx-1" onClick={() => {props.composeFunc(false); props.app.setState({selected: false});}} variant="light">Inbox</Button>
             <Button className="mx-1" onClick={() => {props.composeFunc(true)}} variant="light">Compose</Button>
           </Nav>
           <Form className="d-flex">
@@ -28,9 +28,9 @@ const NavBar = (props) => {
               placeholder="Search"
               className="me-2"
               aria-label="Search"
-              onChange={element => props.app.setState({ searchBoxValue: element.target.value })}
+              onChange={element => setText(element.target.value)}
             />
-            <Button onClick={() => {props.searchFunc()}} variant="outline-dark">Search</Button>
+            <Button onClick={() => {props.searchFunc(text, true)}} variant="outline-dark">Search</Button>
           </Form>
         </Navbar.Collapse>
       </Container>
