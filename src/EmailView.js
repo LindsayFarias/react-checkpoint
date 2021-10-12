@@ -1,7 +1,7 @@
 import React from "react"
 import {Card, Button} from "react-bootstrap"
 
-const EmailView = ({email, composeFunc}) => {
+const EmailView = ({email, statusFunc}) => {
     return(
         <Card>
             <Card.Header>From: {email.sender}</Card.Header>
@@ -10,7 +10,7 @@ const EmailView = ({email, composeFunc}) => {
                 <Card.Text>
                     {email.message}
                 </Card.Text>
-                <Button onClick={()=>composeFunc(true)} variant="outline-dark">Reply</Button>
+                <Button onClick={()=>statusFunc("composing")} variant="outline-dark">Reply</Button>
             </Card.Body>
             <Card.Footer className="text-muted">{email.date}</Card.Footer>
         </Card>

@@ -19,8 +19,8 @@ const NavBar = (props) => {
           <Nav
             className="mr-auto my-2 my-lg-0"style={{ maxHeight: "100px" }}navbarScroll>
 
-            <Button className="mx-1" onClick={() => {props.composeFunc(false); props.app.setState({selected: false});}} variant="light">Inbox</Button>
-            <Button className="mx-1" onClick={() => {props.composeFunc(true)}} variant="light">Compose</Button>
+            <Button className="mx-1" onClick={() => {props.statusFunc('home')}} variant="light">Inbox</Button>
+            <Button className="mx-1" onClick={() => {props.statusFunc('composing')}} variant="light">Compose</Button>
           </Nav>
           <Form className="d-flex">
             <FormControl
@@ -30,7 +30,7 @@ const NavBar = (props) => {
               aria-label="Search"
               onChange={element => setText(element.target.value)}
             />
-            <Button onClick={() => {props.searchFunc(text, true)}} variant="outline-dark">Search</Button>
+            <Button onClick={() => {props.searchFunc(text)}} variant="outline-dark">Search</Button>
           </Form>
         </Navbar.Collapse>
       </Container>

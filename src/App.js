@@ -10,18 +10,17 @@ class App extends React.Component {
   constructor() {
     super();
 
-    this.composeEmail = this.composeEmail.bind(this);
+    this.setStatus = this.setStatus.bind(this);
     this.search = this.search.bind(this);
     this.selectEmail = this.selectEmail.bind(this);
+    this.sendEmail = this.sendEmail.bind(this);
 
     this.state = {
         emails: [],
-        composeEmail: false,
         searchQuery: [],
-        searching: undefined,
         retrieveId: undefined,
         selectedEmail: {},
-        selected: false,
+        status: 'home',
     };
   }
 
@@ -51,34 +50,49 @@ class App extends React.Component {
     this.setState({emails: data})
   }
 
-  composeEmail(boolean){
-    this.setState({composeEmail: boolean})
+  setStatus(statusUpdate){
+    this.setState({status: statusUpdate});
   }
 
-  async search(text,boolean){
+  async search(text){
     let data = await this.grabJson(text)
+    if(data.length === 0) return this.setStatus('home')
+
     this.setState({searchQuery: data});
-    this.setState({searching: true})
+    this.setStatus('searching')
   }
 
   async selectEmail(id){
     let data = await this.grabJson(id)
     this.setState({selectedEmail: data})
-    this.setState({selected: true})
+    this.setStatus("selecting")
+  }
+
+  async sendEmail(data){
+    fetch("http://localhost:3001/send", {
+      method: 'POST',
+      headers: {"Content-Type": 'application/json',},
+      body: JSON.stringify(data),
+    })
+    .then(response => response.json())
+    .then(data => console.log('Success:', data))
+    .catch(error => console.log('Error:', error));
+
+    this.setStatus("home");
   }
 
   render(){
     let result;
-    if(this.state.composeEmail) {result = <Compose composeFunc={this.composeEmail}/>}
-    else if(this.state.searching) {result = <EmailQuery queryObj={this.state.searchQuery} selectorFunc={this.selectEmail}/>}
-    else if(this.state.selected) {result = <EmailView email={this.state.selectedEmail} composeFunc={this.composeEmail}/>}
-    else if(!this.state.composeEmail) {result = <Emails emails={this.state.emails} selectorFunc={this.selectEmail}/>}
+    if(this.state.status === 'composing') {result = <Compose length={this.state.emails.length} postDataFunc={this.sendEmail}/>}
+    else if(this.state.status === 'searching') {result = <EmailQuery queryObj={this.state.searchQuery} selectorFunc={this.selectEmail}/>}
+    else if(this.state.status === "selecting") {result = <EmailView email={this.state.selectedEmail} statusFunc={this.setStatus}/>}
+    else if(this.state.status === 'home') {result = <Emails emails={this.state.emails} selectorFunc={this.selectEmail}/>}
     console.log(result)
 
   return (
     <div className="App">
       <header>
-        <NavBar app={this} composeFunc={this.composeEmail} searchFunc={this.search}/>
+        <NavBar app={this} statusFunc={this.setStatus} searchFunc={this.search}/>
       </header>
       <main>
         {result}
